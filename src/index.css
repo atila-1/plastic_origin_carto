@@ -36,4 +36,32 @@ top: 0;
 left: 0;
 margin-left: auto;
 border-radius: 4px;
-}  
+}
+
+.relative {
+  position: relative;
+}
+.map-toolbar {
+  position: absolute;
+  left: 1rem;
+  bottom: 3rem;
+}
+
+.map-toolbar-actions {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.map-toolbar-button {
+  background-color: white;
+  border: none;
+  padding: 0.5em;
+  cursor: pointer;
+  transition: background 300ms;
+  &:hover {
+    background: #f0f0f0;
+  }
+}

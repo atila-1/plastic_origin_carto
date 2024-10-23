@@ -10,6 +10,7 @@ import { getTypeName } from '../assets/TypeId';
 const TrashLayer = props => {
   const [data, loading] = useFetchData(props.url);
 
+  
   useEffect(() => {
     if (!data || !props.map)  return ;
 
