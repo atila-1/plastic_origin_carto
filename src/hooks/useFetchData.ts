@@ -1,11 +1,18 @@
-import React, { useRef, useEffect, useState } from 'react';
+// import React, { useRef, useEffect, useState } from 'react';
+import { GeoJSONFeature } from 'mapbox-gl';
+import { useEffect, useState } from 'react';
 
-const useFetchData = (url) => {
-  const [data, setData] = useState(null);
+type UseFetchDataReturn = {
+  data: GeoJSONFeature;
+  loading: boolean;
+};
+
+const useFetchData = (url: string): UseFetchDataReturn => {
+  const [data, setData] = useState<GeoJSONFeature>(null!);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = async (): Promise<void> => {
       console.log("Fetch", url)
       try {
         const response = await fetch(url).then(response => response.json())
@@ -20,7 +27,7 @@ const useFetchData = (url) => {
     fetchData();
   }, []);
 
-  return [data, loading];
+  return { data, loading };
 };
 
 export default useFetchData;

@@ -1,11 +1,17 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 .map-container {
-    height: 600px;
-    width: 1000px;
-    margin-left: auto;
-    margin-top: auto;
-    margin-right: auto;
-    margin-bottom: auto;
-  }
+  height: 60vw;
+  width: 100vw;
+  margin-left: auto;
+  margin-top: auto;
+  margin-right: auto;
+  margin-bottom: auto;
+}
 
 .marker {
   /* background-image: url('./../assets/trash.png'); */
@@ -26,16 +32,16 @@
 }
 
 .sidebar {
-background-color: rgba(35, 55, 75, 0.9);
-color: #fff;
-padding: 6px 12px;
-font-family: monospace;
-z-index: 1;
-position: absolute;
-top: 0;
-left: 0;
-margin-left: auto;
-border-radius: 4px;
+  background-color: rgba(35, 55, 75, 0.9);
+  color: #fff;
+  padding: 6px 12px;
+  font-family: monospace;
+  z-index: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin-left: auto;
+  border-radius: 4px;
 }
 
 .relative {
@@ -43,8 +49,17 @@ border-radius: 4px;
 }
 .map-toolbar {
   position: absolute;
-  left: 1rem;
-  bottom: 3rem;
+  left: 1.5rem;
+  z-index: 9999;
+  display: flex;
+}
+.search-toolbar {
+  top: 3rem;
+  z-index: 9999;
+}
+
+.date-toolbar {
+  top: 6.5rem;
 }
 
 .map-toolbar-actions {
@@ -56,12 +71,86 @@ border-radius: 4px;
 }
 
 .map-toolbar-button {
+  border-radius: 50%;
+  overflow: hidden;
+  height: 40px;
+  width: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background-color: white;
   border: none;
-  padding: 0.5em;
   cursor: pointer;
   transition: background 300ms;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 9999;
   &:hover {
     background: #f0f0f0;
   }
+}
+
+.search-input {
+  width: 0;
+  height: 40px;
+  margin-left: -40px;
+  z-index: -1;
+  border-radius: 20px;
+  box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.1);
+  border: 0;
+  padding: 0;
+  padding-left: 3rem;
+  transition: all 0.3s ease-in-out;
+  opacity: 0;
+}
+.search-input.show {
+  width: 400px;
+  opacity: 1;
+  z-index: 9;
+}
+
+.mapboxgl-ctrl-top-right {
+  right: unset !important;
+  top: unset !important;
+  left: 1.5rem;
+  bottom: 2rem;
+}
+
+/*
+first div with .mapboxgl-ctrl-group in .mapboxgl-ctrl-top-right
+*/
+.mapboxgl-ctrl {
+  margin-bottom: 1.5rem !important;
+}
+
+.mapboxgl-ctrl-group button {
+  width: 40px !important;
+  height: 40px !important;
+}
+
+.mapboxgl-ctrl-icon {
+  transform: scale(0.725) !important;
+}
+
+.suggestions-list {
+  list-style: none;
+  margin: 0;
+  background: white;
+  max-height: 350px;
+  overflow-y: auto;
+  position: absolute;
+  left: 3rem;
+  right: 0;
+  box-shadow: 0 2px 10px 5px rgba(0, 0, 0, 0.1);
+  padding: 0.5rem;
+  border-radius: 10px;
+  top: 3rem;
+}
+
+.suggestions-list li {
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.suggestions-list li:hover {
+  background: #f0f0f0;
 }
