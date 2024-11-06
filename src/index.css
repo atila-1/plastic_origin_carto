@@ -4,8 +4,12 @@
   box-sizing: border-box;
 }
 
+body {
+  font-family: 'Open Sans', sans-serif;
+  background-color: #f0f0f0;
+}
 .map-container {
-  height: 60vw;
+  height: 900px;
   width: 100vw;
   margin-left: auto;
   margin-top: auto;
@@ -33,7 +37,7 @@
 
 .sidebar {
   background-color: rgba(35, 55, 75, 0.9);
-  color: #fff;
+  color: #c11812;
   padding: 6px 12px;
   font-family: monospace;
   z-index: 1;
@@ -153,4 +157,26 @@ first div with .mapboxgl-ctrl-group in .mapboxgl-ctrl-top-right
 
 .suggestions-list li:hover {
   background: #f0f0f0;
+}
+
+.selected-suggestion {
+  background-color: #edf2f4;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  box-shadow: 2px 1px 10px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  max-width: 350px;
+  font-size: 14px;
+}
+
+.btn-clear {
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  border-radius: 50%;
+}
+.btn-clear:hover {
+  scale: 1.1;
 }

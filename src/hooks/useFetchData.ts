@@ -24,8 +24,9 @@ const useFetchData = (url: string): UseFetchDataReturn => {
         setLoading(true);
       }
     }
+    setLoading(true);
     fetchData();
-  }, []);
+  }, [url]);
 
   return { data, loading };
 };

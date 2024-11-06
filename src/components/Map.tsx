@@ -1,9 +1,11 @@
 import mapboxgl, { Map } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { ReactElement, useEffect, useRef, useState } from 'react';
+import { MapProvider } from '../context/MapContext';
 import DateBar from './DateBar';
 import SearchBar from './SearchBar';
 import TrashLayer from './TrashLayer';
+
 const MapApp = (): ReactElement => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map>();
@@ -19,7 +21,8 @@ const MapApp = (): ReactElement => {
       style: 'mapbox://styles/anaishy/clxygwhkz001d01pn1kan0dhw',
       center: [lng, lat],
       zoom: zoom,
-      minZoom: 4
+      minZoom: 5,
+      maxZoom: 16
     });
 
     mapRef.current.addControl(new mapboxgl.FullscreenControl());
@@ -28,6 +31,12 @@ const MapApp = (): ReactElement => {
       setIsMapLoaded(true);
       mapRef.current!.resize();
     });
+
+    // mapRef.current.on('move', () => {
+    //   const bounds = mapRef.current?.getBounds();
+    //   if (!bounds) return;
+    //   console.log(bounds.toArray().flat());
+    // });
 
     return (): void => {
       mapRef.current!.remove();
@@ -44,12 +53,14 @@ const MapApp = (): ReactElement => {
   }, [mapRef]);
 
   return (
-    <div className="relative">
-      {isMapLoaded && <SearchBar map={mapRef.current!} />}
-      <DateBar />
-      <div id="map-container" ref={mapContainerRef} className="map-container" />
-      {isMapLoaded && <TrashLayer map={mapRef.current!} />}
-    </div>
+    <MapProvider>
+      <div className="relative">
+        {isMapLoaded && <SearchBar map={mapRef.current!} />}
+        <DateBar />
+        <div id="map-container" ref={mapContainerRef} className="map-container" />
+        {isMapLoaded && <TrashLayer map={mapRef.current!} />}
+      </div>
+    </MapProvider>
   );
 };
 
