@@ -1,4 +1,4 @@
-export interface DetailsLocation {
+export interface LocationPoint {
     name: string;
     name_preferred: string;
     mapbox_id: string;

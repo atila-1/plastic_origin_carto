@@ -1,22 +1,25 @@
-import { Map } from 'mapbox-gl';
+import { Map, MapMouseEvent } from 'mapbox-gl';
 import { useEffect } from 'react';
 import circleConfig from '../assets/TrashCircleStyle';
 import heatmapConfig from '../assets/TrashHeatmapStyle';
 import { useMapContext } from '../context/MapContext';
 import useFetchData from '../hooks/useFetchData';
+import { LocationPoint } from '../types';
 
 interface TrashLayerProps {
   map: Map;
 }
 const TrashLayer = ({ map }: TrashLayerProps): null => {
-  const { bounds } = useMapContext();
+  const { bounds, setLocationPoint } = useMapContext();
   const convertBoundsToUrl = (): string => {
     return bounds!.map((bound) => bound.toFixed(2)).join('/');
   }
   const url = `https://api-plastico-prod.azurewebsites.net/v1/geojson/${convertBoundsToUrl()}?entity_type=trash`;
   const { data, loading } = useFetchData(url);
+
   useEffect(() => {
     if (!data || !map) return;
+
     if (!map.getSource('data')) {
       map.addSource('data', {
         type: 'geojson',
@@ -35,8 +38,8 @@ const TrashLayer = ({ map }: TrashLayerProps): null => {
         id: 'heatmap_trash',
         type: 'heatmap',
         source: 'data',
-        maxzoom: 15,
-        paint: heatmapConfig as any
+        maxzoom: 14,
+        paint: heatmapConfig as unknown as mapboxgl.HeatmapPaint
       });
     }
 
@@ -45,9 +48,9 @@ const TrashLayer = ({ map }: TrashLayerProps): null => {
         id: 'circle_trash',
         type: 'circle',
         source: 'data',
-        minzoom: 13,
+        minzoom: 14,
         layout: { visibility: 'visible' },
-        paint: circleConfig as any
+        paint: circleConfig as unknown as mapboxgl.HeatmapPaint
       });
     }
 
@@ -74,6 +77,20 @@ const TrashLayer = ({ map }: TrashLayerProps): null => {
     //     filter: ['==', 'id_ref_campaign_fk', '']
     //   });
     // }
+
+    const handlePointClick = (e: MapMouseEvent): void => {
+      console.log(e.features);
+      if (!e.features || e.features.length === 0) return;
+      const feature = e.features[0];
+      setLocationPoint(feature.properties as unknown as LocationPoint);
+    };
+
+
+    map.on('click', 'circle_trash', handlePointClick);
+
+    return () => {
+      map.off('click', 'circle_trash', handlePointClick);
+    };
 
 
 

@@ -4,16 +4,16 @@ const circleConfig = {
   'circle-radius': {
     'base': 1,
     'stops': [
-      [15, 3],
-      [22, 20]
+      [12, 4],
+      [15, 6]
     ]
   },
   'circle-color': [
     'match',
     ['get', 'type_name'],
-    'Trash', '#3357FF',
-    'AccumulationZone', '#c11812',
-    'BulkyTrash', '#33FF57',
+    'Trash', '#3088D9',
+    'AccumulationZone', '#E74319',
+    'BulkyTrash', '#3EB756',
     '#CCCCCC'
   ],
 }

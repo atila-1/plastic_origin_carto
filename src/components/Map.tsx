@@ -1,17 +1,18 @@
 import mapboxgl, { Map } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { ReactElement, useEffect, useRef, useState } from 'react';
-import { MapProvider } from '../context/MapContext';
+import { useMapContext } from '../context/MapContext';
+import { Trash } from '../types';
 import DateBar from './DateBar';
+import { ListPanel } from './ListPanel';
 import SearchBar from './SearchBar';
 import TrashLayer from './TrashLayer';
 
 const MapApp = (): ReactElement => {
+  const { setTrashList, setMapBox } = useMapContext();
+  const [zoom, setZoom] = useState(5);
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map>();
-  const [lng, setLng] = useState(2.1); // -1.0
-  const [lat, setLat] = useState(46.1); // 43.47
-  const [zoom, setZoom] = useState(5); // 14
   const [isMapLoaded, setIsMapLoaded] = useState(false);
 
   useEffect(() => {
@@ -19,7 +20,7 @@ const MapApp = (): ReactElement => {
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current!,
       style: 'mapbox://styles/anaishy/clxygwhkz001d01pn1kan0dhw',
-      center: [lng, lat],
+      center: [2.1, 46.1],
       zoom: zoom,
       minZoom: 5,
       maxZoom: 16
@@ -30,37 +31,39 @@ const MapApp = (): ReactElement => {
     mapRef.current.on('load', () => {
       setIsMapLoaded(true);
       mapRef.current!.resize();
+      setMapBox(mapRef.current!);
     });
 
-    // mapRef.current.on('move', () => {
-    //   const bounds = mapRef.current?.getBounds();
-    //   if (!bounds) return;
-    //   console.log(bounds.toArray().flat());
-    // });
+    const updateVisibleFeatures = (): void => {
+      const map = mapRef.current;
+      if (!map) return;
+      if (!map.getSource('data')) return;
+      setZoom(map.getZoom());
+      // if (zoom < 13) {
+      //   setTrashList([]);
+      //   return;
+      // }
+      const features = map.queryRenderedFeatures({
+        layers: ['circle_trash']
+      });
+      setTrashList(features.map((feature) => feature.properties as Trash));
+    };
 
+    mapRef.current.on('moveend', updateVisibleFeatures);
     return (): void => {
       mapRef.current!.remove();
+      mapRef.current!.off('moveend', updateVisibleFeatures);
     };
   }, []);
 
-  useEffect(() => {
-    if (!mapRef.current) return;
-    mapRef.current.on('move', () => {
-      setLng(+mapRef.current!.getCenter().lng.toFixed(4));
-      setLat(+mapRef.current!.getCenter().lat.toFixed(4));
-      setZoom(+mapRef.current!.getZoom().toFixed(2));
-    });
-  }, [mapRef]);
-
   return (
-    <MapProvider>
-      <div className="relative">
-        {isMapLoaded && <SearchBar map={mapRef.current!} />}
-        <DateBar />
-        <div id="map-container" ref={mapContainerRef} className="map-container" />
-        {isMapLoaded && <TrashLayer map={mapRef.current!} />}
-      </div>
-    </MapProvider>
+    <div className="relative">
+      {isMapLoaded && <SearchBar map={mapRef.current!} />}
+      <DateBar />
+      <div id="map-container" ref={mapContainerRef} className="map-container" />
+      {isMapLoaded && <TrashLayer map={mapRef.current!} />}
+      {zoom >= 13.5 && <ListPanel />}
+    </div>
   );
 };
 

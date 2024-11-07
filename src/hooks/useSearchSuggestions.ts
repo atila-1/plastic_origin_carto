@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DetailsLocation } from '../types';
+import { LocationPoint } from '../types';
 type Suggestion = {
   name: string;
   mapbox_id: string;
@@ -8,7 +8,7 @@ type UseSearchSuggestionsReturn = {
   inputValue: string;
   suggestions: Suggestion[];
   handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  selectSuggestion: (mapboxId: string) => Promise<DetailsLocation | null>;
+  selectSuggestion: (mapboxId: string) => Promise<LocationPoint | null>;
 };
 
 const useSearchSuggestions = (sessionToken: string): UseSearchSuggestionsReturn => {
@@ -34,7 +34,7 @@ const useSearchSuggestions = (sessionToken: string): UseSearchSuggestionsReturn 
     }
   };
 
-  const selectSuggestion = async (mapboxId: string): Promise<DetailsLocation | null> => {
+  const selectSuggestion = async (mapboxId: string): Promise<LocationPoint | null> => {
     try {
       const response = await fetch(
         `https://api.mapbox.com/search/searchbox/v1/retrieve/${mapboxId}?access_token=${import.meta.env.VITE_MAPBOX_ACCESS_TOKEN}&session_token=${sessionToken}`
