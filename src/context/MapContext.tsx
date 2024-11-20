@@ -34,8 +34,7 @@ export const MapProvider = ({ children }: { children: ReactNode }): ReactElement
   }
 
   const getTrashByCampagne = (campagne: string): Trash[] => {
-    if (!trashList) return [];
-    return trashList.filter((trash) => trash.id_ref_campaign_fk === campagne);
+    return trashList?.filter((trash) => trash.id_ref_campaign_fk === campagne) || [];
   }
 
   return (

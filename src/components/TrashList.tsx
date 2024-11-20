@@ -27,7 +27,6 @@ export const TrashList = ({ trashList, modeCampaig }: { trashList: Trash[], mode
     if (trashFeature) {
       setSelectedTrash(trashFeature.properties as unknown as Trash);
     }
-
   }
 
   return (

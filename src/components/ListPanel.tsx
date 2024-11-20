@@ -4,31 +4,38 @@ import { Trash } from "../types";
 import { TrashList } from "./TrashList";
 
 export const ListPanel = (): ReactElement => {
-  const { trashList, selectedTrash, getTrashByCampagne } = useMapContext();
+  const { trashList, selectedTrash, getTrashByCampagne, setSelectedTrash } = useMapContext();
   const [trashByCapagne, setTrashByCapagne] = useState<Trash[] | null>(null);
-  const [isModeCampaign, setIsModeCampaign] = useState(false);
+  const [isModeTrash, setIsModeTrash] = useState(false);
 
   useEffect(() => {
-    setIsModeCampaign(selectedTrash ? true : false);
+    setIsModeTrash(selectedTrash ? false : true);
     if (!selectedTrash) return;
     const campaignId = selectedTrash.id_ref_campaign_fk;
     const trashList = getTrashByCampagne(campaignId);
+    console.log(trashList);
     setTrashByCapagne(trashList);
   }, [selectedTrash]);
 
   return (
     <div className="map-details-panel">
       <div className="flex w-full p-2 bg-white mb-3 panel-action-top">
-        <div className={`flex-1 py-2 panel-actions-item ${!isModeCampaign && 'active'}`} >
+        <div className={`flex-1 py-2 panel-actions-item ${isModeTrash && 'active'}`} onClick={() => {
+          setIsModeTrash(true);
+          setSelectedTrash(null!)
+        }} >
           Tout
         </div>
-        <div className={`flex-1 py-2 panel-actions-item ${isModeCampaign && 'active'}`} >
+        <div className={`flex-1 py-2 panel-actions-item ${!isModeTrash && 'active'}`} onClick={() => {
+          if (!selectedTrash) return;
+          setIsModeTrash(false);
+        }} >
           Campagne
         </div>
       </div>
 
-      {!isModeCampaign && trashList && <TrashList trashList={trashList} />}
-      {isModeCampaign && trashByCapagne && <TrashList trashList={trashByCapagne} modeCampaig={true} />}
+      {isModeTrash && trashList && <TrashList trashList={trashList} />}
+      {!isModeTrash && trashByCapagne && <TrashList trashList={trashByCapagne} modeCampaig={true} />}
     </div>
   );
 };
