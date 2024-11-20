@@ -1,27 +1,24 @@
 // import React, { useRef, useEffect, useState } from 'react';
-import { GeoJSONFeature } from 'mapbox-gl';
 import { useEffect, useState } from 'react';
 
-type UseFetchDataReturn = {
-  data: GeoJSONFeature;
+type UseFetchDataReturn<T> = {
+  data: T;
   loading: boolean;
 };
 
-const useFetchData = (url: string): UseFetchDataReturn => {
-  const [data, setData] = useState<GeoJSONFeature>(null!);
+const useFetchData = <T>(url: string): UseFetchDataReturn<T> => {
+  const [data, setData] = useState<T>(null!);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async (): Promise<void> => {
-      console.log("Fetch", url)
       try {
         const response = await fetch(url).then(response => response.json())
-        console.log("Fetch", response)
         setData(response);
         setLoading(false);
       } catch (error) {
-        console.error(error);
-        setLoading(true);
+        console.error('Error fetching data:', error);
+        setLoading(false);
       }
     }
     setLoading(true);

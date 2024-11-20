@@ -5,11 +5,12 @@ import { useMapContext } from '../context/MapContext';
 import { Trash } from '../types';
 import DateBar from './DateBar';
 import { ListPanel } from './ListPanel';
+import { ModalCampaign } from './ModalCampaign';
 import SearchBar from './SearchBar';
 import TrashLayer from './TrashLayer';
 
 const MapApp = (): ReactElement => {
-  const { setTrashList, setMapBox } = useMapContext();
+  const { setTrashList, setMapBox, selectedTrash, currentCampagne } = useMapContext();
   const [zoom, setZoom] = useState(5);
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map>();
@@ -39,10 +40,6 @@ const MapApp = (): ReactElement => {
       if (!map) return;
       if (!map.getSource('data')) return;
       setZoom(map.getZoom());
-      // if (zoom < 13) {
-      //   setTrashList([]);
-      //   return;
-      // }
       const features = map.queryRenderedFeatures({
         layers: ['circle_trash']
       });
@@ -56,6 +53,44 @@ const MapApp = (): ReactElement => {
     };
   }, []);
 
+
+  useEffect(() => {
+    if (!mapRef || !mapRef.current) return;
+
+    const onStyleLoad = (): void => {
+      const map = mapRef.current!;
+      if (!selectedTrash) {
+        if (map.getLayer('circle_trash_highlight')) {
+          map.setFilter('circle_trash_highlight', null);
+        }
+        if (map.getLayer('circle_trash')) {
+          map.setFilter('circle_trash', null);
+        }
+        return;
+      }
+      const campaignId = selectedTrash.id_ref_campaign_fk;
+      if (map.getLayer('circle_trash_highlight')) {
+        map.setFilter('circle_trash_highlight', ['==', 'id_ref_campaign_fk', campaignId]);
+      }
+      if (map.getLayer('circle_trash')) {
+        map.setFilter('circle_trash', ['!=', 'id_ref_campaign_fk', campaignId]);
+        map.setPaintProperty('circle_trash', 'circle-color', '#CCCCCC');
+      }
+    };
+
+    if (mapRef.current!.isStyleLoaded()) {
+      onStyleLoad();
+    } else {
+      mapRef.current!.on('style.load', onStyleLoad);
+    }
+
+    return () => {
+      if (mapRef.current) {
+        mapRef.current!.off('style.load', onStyleLoad);
+      }
+    };
+  }, [selectedTrash]);
+
   return (
     <div className="relative">
       {isMapLoaded && <SearchBar map={mapRef.current!} />}
@@ -63,6 +98,7 @@ const MapApp = (): ReactElement => {
       <div id="map-container" ref={mapContainerRef} className="map-container" />
       {isMapLoaded && <TrashLayer map={mapRef.current!} />}
       {zoom >= 13.5 && <ListPanel />}
+      {currentCampagne && <ModalCampaign idCampaign={selectedTrash!.id_ref_campaign_fk} />}
     </div>
   );
 };

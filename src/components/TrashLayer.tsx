@@ -1,25 +1,26 @@
-import { Map, MapMouseEvent } from 'mapbox-gl';
+import { GeoJSONFeature, Map, MapMouseEvent } from 'mapbox-gl';
 import { useEffect } from 'react';
+import circleBackgroundConfig from '../assets/TrashCircleBackgroundStyle';
+import circleHighlightConfig from '../assets/TrashCircleHighlightStyle';
 import circleConfig from '../assets/TrashCircleStyle';
 import heatmapConfig from '../assets/TrashHeatmapStyle';
 import { useMapContext } from '../context/MapContext';
 import useFetchData from '../hooks/useFetchData';
-import { LocationPoint } from '../types';
+import { Trash } from '../types';
 
 interface TrashLayerProps {
   map: Map;
 }
 const TrashLayer = ({ map }: TrashLayerProps): null => {
-  const { bounds, setLocationPoint } = useMapContext();
+  const { bounds, setSelectedTrash } = useMapContext();
   const convertBoundsToUrl = (): string => {
     return bounds!.map((bound) => bound.toFixed(2)).join('/');
   }
-  const url = `https://api-plastico-prod.azurewebsites.net/v1/geojson/${convertBoundsToUrl()}?entity_type=trash`;
-  const { data, loading } = useFetchData(url);
+  const url = `${import.meta.env.VITE_PLASTIC_API}/geojson/${convertBoundsToUrl()}?entity_type=trash`;
+  const { data, loading } = useFetchData<GeoJSONFeature>(url);
 
   useEffect(() => {
     if (!data || !map) return;
-
     if (!map.getSource('data')) {
       map.addSource('data', {
         type: 'geojson',
@@ -55,45 +56,41 @@ const TrashLayer = ({ map }: TrashLayerProps): null => {
     }
 
     // Adding a layer that makes non selected points greyish
-    // if (!map.getLayer('circle_trash_background')) {
-    //   map.addLayer({
-    //     id: 'circle_trash_background',
-    //     type: 'circle',
-    //     source: 'data',
-    //     minzoom: 13,
-    //     paint: circleBackgroundConfig as any,
-    //     layout: { visibility: 'none' }
-    //   });
-    // }
+    if (!map.getLayer('circle_trash_background')) {
+      map.addLayer({
+        id: 'circle_trash_background',
+        type: 'circle',
+        source: 'data',
+        minzoom: 13,
+        paint: circleBackgroundConfig as any,
+        layout: { visibility: 'none' }
+      });
+    }
 
     // // Adding a layer that highlights points of the same campaign than the clicked point
-    // if (!map.getLayer('circle_trash_highlight')) {
-    //   map.addLayer({
-    //     id: 'circle_trash_highlight',
-    //     type: 'circle',
-    //     source: 'data',
-    //     minzoom: 13,
-    //     paint: circleHighlightConfig as any,
-    //     filter: ['==', 'id_ref_campaign_fk', '']
-    //   });
-    // }
+    if (!map.getLayer('circle_trash_highlight')) {
+      map.addLayer({
+        id: 'circle_trash_highlight',
+        type: 'circle',
+        source: 'data',
+        minzoom: 13,
+        paint: circleHighlightConfig as any,
+        filter: ['==', 'id_ref_campaign_fk', '']
+      });
+    }
 
     const handlePointClick = (e: MapMouseEvent): void => {
-      console.log(e.features);
       if (!e.features || e.features.length === 0) return;
       const feature = e.features[0];
-      setLocationPoint(feature.properties as unknown as LocationPoint);
+      setSelectedTrash(feature.properties as unknown as Trash);
     };
 
 
     map.on('click', 'circle_trash', handlePointClick);
 
-    return () => {
+    return (): void => {
       map.off('click', 'circle_trash', handlePointClick);
     };
-
-
-
   }, [data]);
   return null;
 };

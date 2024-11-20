@@ -1,18 +1,17 @@
-import { ArrowsHorizontal, MapPin } from "@phosphor-icons/react";
 import { ReactElement } from "react";
 import { useMapContext } from "../context/MapContext";
 import { Trash } from "../types";
 
 
-export const TrashList = ({ trashList }: { trashList: Trash[] }): ReactElement => {
-  const { mapBox } = useMapContext();
+export const TrashList = ({ trashList, modeCampaig }: { trashList: Trash[], modeCampaig?: boolean }): ReactElement => {
+  const { mapBox, setSelectedTrash, setCurrentCampagne } = useMapContext();
   const getTrashType = (type: string): string => {
     switch (type) {
-      case "AccumulationZone":
+      case "Bottle-shaped":
         return "Zone d'accumulation";
-      case "BulkyTrash":
+      case "Insulating material":
         return "Encombrant";
-      case "Trash":
+      case "Sheet / tarp / plastic bag / fragment":
         return "Déchet";
       default:
         return "Déchet";
@@ -26,31 +25,34 @@ export const TrashList = ({ trashList }: { trashList: Trash[] }): ReactElement =
       filter: ['==', 'id', trash.id]
     })[0];
     if (trashFeature) {
-      mapBox.flyTo({
-        center: (trashFeature.geometry as any).coordinates!,
-        zoom: 15
-      });
+      setSelectedTrash(trashFeature.properties as unknown as Trash);
     }
 
   }
 
   return (
-    <div className="trash-list">
-      {trashList.map((trash, index) => (
-        <div className="trash-item flex flex-column gap-1" key={index} onClick={() => { onTrashItemClick(trash) }}>
-          <p><span>Recensé le :</span> {new Date(trash.time).toDateString()}</p>
-          <p className={trash.type_name}><span>Type déchet :</span> {getTrashType(trash.type_name)}</p>
-          <p><span>Cours d’eau :</span> {trash.river_name}</p>
-          <div className="flex justify-content-between mt-1">
-            <span>
-              <ArrowsHorizontal size={22} weight="fill" />
-            </span>
-            <span>
-              <MapPin size={22} weight="fill" />
-            </span>
+    <>
+      <div className="trash-list">
+        {
+          modeCampaig && <div className="flex justify-content-between mb-3">
+            <strong>Campagne N</strong>
+            <a href="#" onClick={() => {
+              setCurrentCampagne("d")
+            }}>
+              Détails
+            </a>
           </div>
+        }
+        <div className="trash-list-body">
+          {trashList.map((trash, index) => (
+            <div className="trash-item flex flex-column gap-1 mb-1" key={index} onClick={() => { onTrashItemClick(trash) }}>
+              <p><span>Recensé le :</span> {new Date(trash.time).toLocaleString()}</p>
+              <p className={trash.type_name}><span>Type déchet :</span> {getTrashType(trash.type_name)}</p>
+              <p><span>Cours d’eau :</span> {trash.river_name}</p>
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
+      </div>
+    </>
   );
 };

@@ -11,9 +11,9 @@ const circleConfig = {
   'circle-color': [
     'match',
     ['get', 'type_name'],
-    'Trash', '#3088D9',
-    'AccumulationZone', '#E74319',
-    'BulkyTrash', '#3EB756',
+    'Sheet / tarp / plastic bag / fragment', '#3088D9',
+    'Insulating material', '#E74319',
+    'Bottle-shaped', '#3EB756',
     '#CCCCCC'
   ],
 }

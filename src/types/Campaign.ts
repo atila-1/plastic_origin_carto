@@ -1,13 +1,16 @@
 export interface Campaign {
-    campaign_id: string;
     distance: number;
-    firstname: string;
-    id: number;
+    end_date: Date;
+    id: string;
     isaidriven: boolean;
-    river_code: string;
-    river_id: number;
-    river_name: string;
-    trash_count: number;
-    trash_per_km: number;
-    trashes_by_type: string;
+    locomotion: string;
+    remark: string;
+    riverside: string;
+    start_date: Date;
+    trashes_count_by_type: TrashesCountByType;
+}
+export type TrashesCountByType = {
+    bottleShaped: number;
+    insulatingMaterial: number;
+    sheetTarpPlasticBagFragment: number;
 }

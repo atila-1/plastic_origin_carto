@@ -4,14 +4,19 @@ import { LocationPoint, Trash } from '../types';
 
 interface MapContextProps {
   bounds: [number, number, number, number] | null;
-  setBounds: (bounds: [number, number, number, number]) => void;
   locationPoint: LocationPoint | null;
+  mapBox: Map | null;
+  trashList: Trash[] | null;
+  selectedTrash: Trash | null;
+  currentCampagne: string | null;
+  setCurrentCampagne: (campagne: string) => void;
+  setBounds: (bounds: [number, number, number, number]) => void;
   setLocationPoint: (locationPoint: LocationPoint) => void;
   resetLocation: () => void;
-  trashList: Trash[] | null;
   setTrashList: (trashList: Trash[]) => void;
-  mapBox: Map | null;
   setMapBox: (mapBox: Map) => void;
+  setSelectedTrash: (trash: Trash) => void;
+  getTrashByCampagne: (campagne: string) => Trash[];
 
 }
 
@@ -21,13 +26,30 @@ export const MapProvider = ({ children }: { children: ReactNode }): ReactElement
   const [locationPoint, setLocationPoint] = useState<LocationPoint | null>(null);
   const [trashList, setTrashList] = useState<Trash[] | null>(null);
   const [mapBox, setMapBox] = useState<Map | null>(null);
+  const [selectedTrash, setSelectedTrash] = useState<Trash>(null!);
+  const [currentCampagne, setCurrentCampagne] = useState<string | null>(null);
 
   const resetLocation = (): void => {
     setLocationPoint(null);
   }
 
+  const getTrashByCampagne = (campagne: string): Trash[] => {
+    if (!trashList) return [];
+    return trashList.filter((trash) => trash.id_ref_campaign_fk === campagne);
+  }
+
   return (
-    <MapContext.Provider value={{ bounds, setBounds, locationPoint, setLocationPoint, resetLocation, trashList, setTrashList, mapBox, setMapBox }}>
+    <MapContext.Provider
+      value={
+        {
+          bounds, setBounds,
+          locationPoint, setLocationPoint,
+          resetLocation, trashList,
+          setTrashList, getTrashByCampagne,
+          mapBox, setMapBox,
+          selectedTrash, setSelectedTrash,
+          currentCampagne, setCurrentCampagne
+        }}>
       {children}
     </MapContext.Provider>
   );
