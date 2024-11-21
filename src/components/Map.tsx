@@ -97,7 +97,7 @@ const MapApp = (): ReactElement => {
       <div id="map-container" ref={mapContainerRef} className="map-container" />
       {isMapLoaded && <TrashLayer map={mapRef.current!} />}
       {zoom >= 12 && <ListPanel />}
-      {currentCampagne && <ModalCampaign idCampaign={selectedTrash!.id_ref_campaign_fk} />}
+      {currentCampagne && <ModalCampaign campaign={currentCampagne} />}
     </div>
   );
 };

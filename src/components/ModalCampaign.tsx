@@ -3,28 +3,12 @@ import { format } from "date-fns";
 import { fr } from 'date-fns/locale';
 import React, { ReactElement } from "react";
 import { useMapContext } from '../context/MapContext';
-import useFetchData from "../hooks/useFetchData";
 import { Campaign } from "../types";
 
-export const ModalCampaign = ({ idCampaign }: { idCampaign: string }): ReactElement => {
-  const { setCurrentCampagne, getTrashByCampagne } = useMapContext()
-  const { data, loading } = useFetchData<Campaign>(`${import.meta.env.VITE_PLASTIC_API}/campaign/${idCampaign}`);
-  if (loading || !data) {
-    return (
-      <>
-        <div className="modal-backdrop fadein"></div>
-        <div className="modal-campaign fadein">
-          <div className="modal-header mb-3">
-            <h3 className="flex-1">Détails de la campagne</h3>
-            <button className="btn-close">X</button>
-          </div>
-          <div className="flex w-full detail-line">
-            <strong className="flex-1">Chargement...</strong>
-          </div>
-        </div>
-      </>
-    );
-  }
+export const ModalCampaign = ({ campaign }: { campaign: Campaign }): ReactElement => {
+  const { getTrashByCampagne, setCurrentCampagne } = useMapContext()
+  const trashList = getTrashByCampagne(campaign.id);
+
   const convertToDate = (dateString: string): Date => {
     const [datePart, timePart] = dateString.split(' ');
     const [day, month, year] = datePart.split('-');
@@ -32,15 +16,17 @@ export const ModalCampaign = ({ idCampaign }: { idCampaign: string }): ReactElem
     return new Date(formattedDateString);
   };
 
-  data.start_date = convertToDate(String(data.start_date));
-  data.end_date = convertToDate(String(data.end_date));
+  if (!(campaign.start_date instanceof Date)) {
+    campaign.start_date = convertToDate(String(campaign.start_date));
+    campaign.end_date = convertToDate(String(campaign.end_date));
+  }
 
-  const duration = (data.end_date.getTime() - data.start_date.getTime()) / 1000;
+  const duration = (campaign.end_date.getTime() - campaign.start_date.getTime()) / 1000;
   const hours = Math.floor(duration / 3600);
   const minutes = Math.floor((duration % 3600) / 60);
-  const formattedStartDate = format(data.start_date, 'EEEE dd MMMM yyyy', { locale: fr });
-  const formattedStartTime = format(data.start_date, 'HH:mm', { locale: fr });
-  const formattedEndTime = format(data.end_date, 'HH:mm', { locale: fr });
+  const formattedStartDate = format(campaign.start_date, 'EEEE dd MMMM yyyy', { locale: fr });
+  const formattedStartTime = format(campaign.start_date, 'HH:mm', { locale: fr });
+  const formattedEndTime = format(campaign.end_date, 'HH:mm', { locale: fr });
 
   const renderLigne = (label: string, value: string | number): ReactElement => {
     return (
@@ -50,8 +36,6 @@ export const ModalCampaign = ({ idCampaign }: { idCampaign: string }): ReactElem
       </div>
     )
   }
-
-  const trashList = getTrashByCampagne(idCampaign);
   const trashByType = trashList!.reduce((acc, trash) => {
     if (!acc[trash.type_name]) {
       acc[trash.type_name] = 0;
@@ -88,8 +72,8 @@ export const ModalCampaign = ({ idCampaign }: { idCampaign: string }): ReactElem
           </div>
         </div>
         {renderLigne('Durée', `${hours}h ${minutes}m`)}
-        {renderLigne('Id de la campagne', data.id)}
-        {renderLigne('Superficie couverte', `${data.distance.toFixed(2)} km`)}
+        {renderLigne('Id de la campagne', campaign.id)}
+        {renderLigne('Superficie couverte', `${campaign.distance.toFixed(2)} km`)}
       </div>
     </>
   )

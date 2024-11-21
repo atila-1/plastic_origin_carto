@@ -1,6 +1,6 @@
 import { Map } from 'mapbox-gl';
 import { createContext, ReactElement, ReactNode, useContext, useState } from 'react';
-import { LocationPoint, Trash } from '../types';
+import { Campaign, LocationPoint, Trash } from '../types';
 
 interface MapContextProps {
   bounds: [number, number, number, number] | null;
@@ -9,8 +9,8 @@ interface MapContextProps {
   trashList: Trash[] | null;
   trashListApi: Trash[] | null;
   selectedTrash: Trash | null;
-  currentCampagne: string | null;
-  setCurrentCampagne: (campagne: string) => void;
+  currentCampagne: Campaign | null;
+  setCurrentCampagne: (campagne: Campaign) => void;
   setBounds: (bounds: [number, number, number, number]) => void;
   setLocationPoint: (locationPoint: LocationPoint) => void;
   resetLocation: () => void;
@@ -29,7 +29,7 @@ export const MapProvider = ({ children }: { children: ReactNode }): ReactElement
   const [trashList, setTrashList] = useState<Trash[] | null>(null);
   const [mapBox, setMapBox] = useState<Map | null>(null);
   const [selectedTrash, setSelectedTrash] = useState<Trash>(null!);
-  const [currentCampagne, setCurrentCampagne] = useState<string | null>(null);
+  const [currentCampagne, setCurrentCampagne] = useState<Campaign | null>(null);
   const [trashListApi, setTrashListApi] = useState<Trash[] | null>(null);
 
   const resetLocation = (): void => {

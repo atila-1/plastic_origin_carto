@@ -1,10 +1,11 @@
 import { ReactElement } from "react";
 import { useMapContext } from "../context/MapContext";
 import { Trash } from "../types";
+import { CampagneDetails } from "./CampagneDetails";
 
 
 export const TrashList = ({ trashList, modeCampaig }: { trashList: Trash[], modeCampaig?: boolean }): ReactElement => {
-  const { mapBox, setSelectedTrash, setCurrentCampagne } = useMapContext();
+  const { mapBox, setSelectedTrash } = useMapContext();
   const getTrashType = (type: string): string => {
     switch (type) {
       case "AccumulationZone":
@@ -37,14 +38,7 @@ export const TrashList = ({ trashList, modeCampaig }: { trashList: Trash[], mode
     <>
       <div className="trash-list">
         {
-          modeCampaig && <div className="flex justify-content-between mb-3">
-            <strong>Campagne N</strong>
-            <a href="#" onClick={() => {
-              setCurrentCampagne("d")
-            }}>
-              Détails
-            </a>
-          </div>
+          modeCampaig && <CampagneDetails idCampaign={trashList[0].id_ref_campaign_fk} />
         }
         <div className="trash-list-body">
           {trashList.map((trash, index) => (

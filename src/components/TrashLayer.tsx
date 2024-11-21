@@ -95,9 +95,28 @@ const TrashLayer = ({ map }: TrashLayerProps): null => {
       const feature = e.features[0];
       setSelectedTrash(feature.properties as unknown as Trash);
     };
+
+    const handleClickHeatmap = (e: MapMouseEvent): void => {
+      const zoom = map.getZoom();
+      let finalZoom = 0;
+      if (zoom <= 5) {
+        finalZoom = 7;
+      } else if (zoom <= 8) {
+        finalZoom = 10;
+      } else {
+        finalZoom = 14;
+      }
+      map.flyTo({
+        center: e.lngLat,
+        zoom: finalZoom
+      });
+
+    }
     map.on('click', 'circle_trash', handlePointClick);
+    map.on('click', 'heatmap_trash', handleClickHeatmap);
     return (): void => {
       map.off('click', 'circle_trash', handlePointClick);
+      map.off('click', 'heatmap_trash', handleClickHeatmap);
     };
   }, [data]);
   return null;
