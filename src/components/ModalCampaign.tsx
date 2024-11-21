@@ -1,13 +1,14 @@
+import { X } from "@phosphor-icons/react";
 import { format } from "date-fns";
 import { fr } from 'date-fns/locale';
-import { ReactElement } from "react";
+import React, { ReactElement } from "react";
 import { useMapContext } from '../context/MapContext';
 import useFetchData from "../hooks/useFetchData";
 import { Campaign } from "../types";
 
 export const ModalCampaign = ({ idCampaign }: { idCampaign: string }): ReactElement => {
-  const { setCurrentCampagne } = useMapContext()
-  const { data, loading } = useFetchData<Campaign>(`https://api-plastico-prod.azurewebsites.net/v1/campaign//${idCampaign}`);
+  const { setCurrentCampagne, getTrashByCampagne } = useMapContext()
+  const { data, loading } = useFetchData<Campaign>(`${import.meta.env.VITE_PLASTIC_API}/campaign/${idCampaign}`);
   if (loading || !data) {
     return (
       <>
@@ -41,53 +42,55 @@ export const ModalCampaign = ({ idCampaign }: { idCampaign: string }): ReactElem
   const formattedStartTime = format(data.start_date, 'HH:mm', { locale: fr });
   const formattedEndTime = format(data.end_date, 'HH:mm', { locale: fr });
 
+  const renderLigne = (label: string, value: string | number): ReactElement => {
+    return (
+      <div className="flex w-full detail-line">
+        <label className="flex-1">{label}:</label>
+        <span> {value} </span>
+      </div>
+    )
+  }
 
-
+  const trashList = getTrashByCampagne(idCampaign);
+  const trashByType = trashList!.reduce((acc, trash) => {
+    if (!acc[trash.type_name]) {
+      acc[trash.type_name] = 0;
+    }
+    acc[trash.type_name]++;
+    return acc;
+  }, {} as { [key: string]: number });
   return (
     <>
       <div className="modal-backdrop fadein"></div>
       <div className="modal-campaign fadein">
-        <div className="modal-header mb-3">
+        <div className="modal-header mb-4">
           <h3 className="flex-1">Détails de la campagne</h3>
-          <button className="btn-close" onClick={() => setCurrentCampagne(null!)} >X</button>
+          <span className="btn-close cursor-pointer" onClick={() => setCurrentCampagne(null!)}>
+            <X size={24} />
+          </span>
         </div>
-        <div className="flex w-full detail-line">
-          <strong className="flex-1">Date:</strong>
-          <span> {formattedStartDate} </span>
-        </div>
-        <div className="flex w-full detail-line">
-          <strong className="flex-1">Heure de début:</strong>
-          <span> {formattedStartTime} </span>
-        </div>
-        <div className="flex w-full detail-line">
-          <strong className="flex-1">Heure de fin:</strong>
-          <span> {formattedEndTime}</span>
-        </div>
+        {renderLigne('Date', formattedStartDate)}
+        {renderLigne('Heure de début', formattedStartTime)}
+        {renderLigne('Heure de fin', formattedEndTime)}
         <div className="flex w-full detail-line">
           <strong className="flex-1">Nombre de signalements:</strong>
-          <span></span>
+          <div className="flex align-items-center">
+            {trashList?.length} ({
+              Object.keys(trashByType).map((key, index) =>
+                <React.Fragment key={key}>
+                  {index > 0 && <span className="mx-1">/</span>}
+                  <span className="flex gap-1 align-items-center">
+                    {trashByType[key]} <span className={`trash-type ${key}`}></span>
+                  </span>
+                </React.Fragment>
+              )
+            })
+          </div>
         </div>
-        <div className="flex w-full detail-line">
-          <strong className="flex-1">Durée:</strong>
-          <span>
-            {hours}h {minutes}m
-          </span>
-        </div>
-        <div className="flex w-full detail-line">
-          <strong className="flex-1">Id de la campagne:</strong>
-          <span>
-            {data?.id}
-          </span>
-        </div>
-        <div className="flex w-full detail-line">
-          <strong className="flex-1">Superficie couverte:</strong>
-          <span>
-            {data?.distance.toFixed(2)} km
-          </span>
-        </div>
-
+        {renderLigne('Durée', `${hours}h ${minutes}m`)}
+        {renderLigne('Id de la campagne', data.id)}
+        {renderLigne('Superficie couverte', `${data.distance.toFixed(2)} km`)}
       </div>
-
     </>
   )
 }

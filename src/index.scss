@@ -195,6 +195,20 @@ first div with .mapboxgl-ctrl-group in .mapboxgl-ctrl-top-right
   right: 2rem;
   width: 350px;
   height: 450px;
+
+  .btn-close {
+    border: unset;
+    background-color: white;
+    position: absolute;
+    top: -3rem;
+    right: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 2px 10px 5px rgba(0, 0, 0, 0.1);
+  }
 }
 
 .panel-action-top {
@@ -206,6 +220,7 @@ first div with .mapboxgl-ctrl-group in .mapboxgl-ctrl-top-right
   text-align: center;
   font-weight: 500;
   color: #C9C9C9;
+  cursor: pointer;
 
   &.active {
     height: 100%;
@@ -298,8 +313,26 @@ first div with .mapboxgl-ctrl-group in .mapboxgl-ctrl-top-right
     font-size: 14px;
     margin-bottom: 0.625rem;
 
-    strong {
+    label {
       font-weight: 600;
+    }
+  }
+
+  .trash-type {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+
+    &.AccumulationZone {
+      background-color: #e74319;
+    }
+
+    &.BulkyTrash {
+      background-color: #3eb756;
+    }
+
+    &.Trash {
+      background-color: #3088d9;
     }
   }
 }

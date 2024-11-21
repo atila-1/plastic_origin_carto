@@ -7,11 +7,11 @@ export const TrashList = ({ trashList, modeCampaig }: { trashList: Trash[], mode
   const { mapBox, setSelectedTrash, setCurrentCampagne } = useMapContext();
   const getTrashType = (type: string): string => {
     switch (type) {
-      case "Bottle-shaped":
+      case "AccumulationZone":
         return "Zone d'accumulation";
-      case "Insulating material":
+      case "BulkyTrash":
         return "Encombrant";
-      case "Sheet / tarp / plastic bag / fragment":
+      case "Trash":
         return "Déchet";
       default:
         return "Déchet";
@@ -27,6 +27,10 @@ export const TrashList = ({ trashList, modeCampaig }: { trashList: Trash[], mode
     if (trashFeature) {
       setSelectedTrash(trashFeature.properties as unknown as Trash);
     }
+    mapBox.flyTo({
+      center: (trashFeature.geometry as any).coordinates!,
+      zoom: 14
+    });
   }
 
   return (

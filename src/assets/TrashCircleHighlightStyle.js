@@ -2,27 +2,20 @@ const circleHighlightConfig = {
   'circle-stroke-color': 'white',
   'circle-stroke-width': 1,
   'circle-radius': {
-    'base': 5,
+    'base': 1,
     'stops': [
-      [12, 6],
-      [15, 10]
+      [12, 4],
+      [15, 7]
     ]
   },
   'circle-color': [
     'match',
     ['get', 'type_name'],
-    'Sheet / tarp / plastic bag / fragment', '#3088D9',
-    'Insulating material', '#E74319',
-    'Bottle-shaped', '#3EB756',
+    'Trash', '#3357FF',
+    'AccumulationZone', '#c11812',
+    'BulkyTrash', '#33FF57',
     '#CCCCCC'
-  ],
-
-  'circle-opacity': {
-    stops: [
-      [13, 0],
-      [14, 1]
-    ]
-  }
+  ]
 }
 
 export default circleHighlightConfig;

@@ -7,6 +7,7 @@ interface MapContextProps {
   locationPoint: LocationPoint | null;
   mapBox: Map | null;
   trashList: Trash[] | null;
+  trashListApi: Trash[] | null;
   selectedTrash: Trash | null;
   currentCampagne: string | null;
   setCurrentCampagne: (campagne: string) => void;
@@ -17,6 +18,7 @@ interface MapContextProps {
   setMapBox: (mapBox: Map) => void;
   setSelectedTrash: (trash: Trash) => void;
   getTrashByCampagne: (campagne: string) => Trash[];
+  setTrashListApi: (trashList: Trash[]) => void;
 
 }
 
@@ -28,13 +30,14 @@ export const MapProvider = ({ children }: { children: ReactNode }): ReactElement
   const [mapBox, setMapBox] = useState<Map | null>(null);
   const [selectedTrash, setSelectedTrash] = useState<Trash>(null!);
   const [currentCampagne, setCurrentCampagne] = useState<string | null>(null);
+  const [trashListApi, setTrashListApi] = useState<Trash[] | null>(null);
 
   const resetLocation = (): void => {
     setLocationPoint(null);
   }
 
   const getTrashByCampagne = (campagne: string): Trash[] => {
-    return trashList?.filter((trash) => trash.id_ref_campaign_fk === campagne) || [];
+    return trashListApi?.filter((trash) => trash.id_ref_campaign_fk === campagne) || [];
   }
 
   return (
@@ -47,7 +50,8 @@ export const MapProvider = ({ children }: { children: ReactNode }): ReactElement
           setTrashList, getTrashByCampagne,
           mapBox, setMapBox,
           selectedTrash, setSelectedTrash,
-          currentCampagne, setCurrentCampagne
+          currentCampagne, setCurrentCampagne,
+          trashListApi, setTrashListApi
         }}>
       {children}
     </MapContext.Provider>

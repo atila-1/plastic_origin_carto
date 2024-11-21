@@ -56,7 +56,6 @@ const MapApp = (): ReactElement => {
 
   useEffect(() => {
     if (!mapRef || !mapRef.current) return;
-
     const onStyleLoad = (): void => {
       const map = mapRef.current!;
       if (!selectedTrash) {
@@ -84,7 +83,7 @@ const MapApp = (): ReactElement => {
       mapRef.current!.on('style.load', onStyleLoad);
     }
 
-    return () => {
+    return (): void => {
       if (mapRef.current) {
         mapRef.current!.off('style.load', onStyleLoad);
       }
@@ -97,7 +96,7 @@ const MapApp = (): ReactElement => {
       <DateBar />
       <div id="map-container" ref={mapContainerRef} className="map-container" />
       {isMapLoaded && <TrashLayer map={mapRef.current!} />}
-      {zoom >= 13.5 && <ListPanel />}
+      {zoom >= 12 && <ListPanel />}
       {currentCampagne && <ModalCampaign idCampaign={selectedTrash!.id_ref_campaign_fk} />}
     </div>
   );

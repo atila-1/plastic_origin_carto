@@ -1,6 +1,6 @@
-import { GeoJSONFeature, Map, MapMouseEvent } from 'mapbox-gl';
+import { FeatureCollection } from "geojson";
+import { Map, MapMouseEvent } from 'mapbox-gl';
 import { useEffect } from 'react';
-import circleBackgroundConfig from '../assets/TrashCircleBackgroundStyle';
 import circleHighlightConfig from '../assets/TrashCircleHighlightStyle';
 import circleConfig from '../assets/TrashCircleStyle';
 import heatmapConfig from '../assets/TrashHeatmapStyle';
@@ -12,15 +12,28 @@ interface TrashLayerProps {
   map: Map;
 }
 const TrashLayer = ({ map }: TrashLayerProps): null => {
-  const { bounds, setSelectedTrash } = useMapContext();
-  const convertBoundsToUrl = (): string => {
-    return bounds!.map((bound) => bound.toFixed(2)).join('/');
-  }
-  const url = `${import.meta.env.VITE_PLASTIC_API}/geojson/${convertBoundsToUrl()}?entity_type=trash`;
-  const { data, loading } = useFetchData<GeoJSONFeature>(url);
-
+  const { bounds, setSelectedTrash, setTrashListApi } = useMapContext();
+  const url = `${import.meta.env.VITE_PLASTIC_API}/geojson/${bounds!.map(($) => $.toFixed(2)).join('/')}?entity_type=trash`;
+  const { data, loading } = useFetchData<FeatureCollection>(url);
   useEffect(() => {
     if (!data || !map) return;
+    const setType = (type: string): string => {
+      if (type === "Sheet / tarp / plastic bag / fragment") {
+        return "Trash"
+      } else if (type === "Insulating material") {
+        return "AccumulationZone"
+      } else if (type === "Bottle-shaped") {
+        return "BulkyTrash"
+      }
+      return type
+    }
+
+    data.features.forEach((feature) => {
+      feature.properties!.type_name = setType(feature.properties!.type_name)
+    });
+
+
+    setTrashListApi(data.features.map((feature) => feature.properties as Trash));
     if (!map.getSource('data')) {
       map.addSource('data', {
         type: 'geojson',
@@ -33,7 +46,6 @@ const TrashLayer = ({ map }: TrashLayerProps): null => {
       }
     }
 
-    // Adding heatmap layer
     if (!map.getLayer('heatmap_trash')) {
       map.addLayer({
         id: 'heatmap_trash',
@@ -49,7 +61,7 @@ const TrashLayer = ({ map }: TrashLayerProps): null => {
         id: 'circle_trash',
         type: 'circle',
         source: 'data',
-        minzoom: 14,
+        minzoom: 12,
         layout: { visibility: 'visible' },
         paint: circleConfig as unknown as mapboxgl.HeatmapPaint
       });
@@ -57,24 +69,23 @@ const TrashLayer = ({ map }: TrashLayerProps): null => {
 
     // Adding a layer that makes non selected points greyish
     if (!map.getLayer('circle_trash_background')) {
-      map.addLayer({
-        id: 'circle_trash_background',
-        type: 'circle',
-        source: 'data',
-        minzoom: 13,
-        paint: circleBackgroundConfig as any,
-        layout: { visibility: 'none' }
-      });
+      // map.addLayer({
+      //   id: 'circle_trash_background',
+      //   type: 'circle',
+      //   source: 'data',
+      //   minzoom: 12,
+      //   paint: circleBackgroundConfig as unknown as mapboxgl.HeatmapPaint,
+      //   layout: { visibility: 'none' }
+      // });
     }
 
-    // // Adding a layer that highlights points of the same campaign than the clicked point
     if (!map.getLayer('circle_trash_highlight')) {
       map.addLayer({
         id: 'circle_trash_highlight',
         type: 'circle',
         source: 'data',
-        minzoom: 13,
-        paint: circleHighlightConfig as any,
+        minzoom: 12,
+        paint: circleHighlightConfig as unknown as mapboxgl.HeatmapPaint,
         filter: ['==', 'id_ref_campaign_fk', '']
       });
     }
@@ -84,10 +95,7 @@ const TrashLayer = ({ map }: TrashLayerProps): null => {
       const feature = e.features[0];
       setSelectedTrash(feature.properties as unknown as Trash);
     };
-
-
     map.on('click', 'circle_trash', handlePointClick);
-
     return (): void => {
       map.off('click', 'circle_trash', handlePointClick);
     };
