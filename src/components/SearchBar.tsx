@@ -3,6 +3,7 @@ import { Map } from 'mapbox-gl';
 import { ReactElement, useEffect, useState } from 'react';
 import { useMapContext } from '../context/MapContext';
 import useSearchSuggestions from '../hooks/useSearchSuggestions';
+import { LocationPoint } from '../types';
 
 interface MyButtonProps {
   map: Map;
@@ -12,7 +13,7 @@ const SearchBar = ({ map }: MyButtonProps): ReactElement => {
   const { setBounds } = useMapContext();
   const [showInput, setShowInput] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-  const [selectedSuggestion, setSelectedSuggestion] = useState<string>('Pays de la Loire');
+  const [selectedSuggestion, setSelectedSuggestion] = useState<string>(null!);
   const [sessionToken, setSessionToken] = useState('');
   const { inputValue, suggestions, handleChange, selectSuggestion } = useSearchSuggestions(sessionToken);
 
@@ -20,7 +21,6 @@ const SearchBar = ({ map }: MyButtonProps): ReactElement => {
     if (selectedSuggestion) {
       return
     }
-
     setShowInput(true);
   };
 
@@ -48,20 +48,20 @@ const SearchBar = ({ map }: MyButtonProps): ReactElement => {
     setSessionToken(generateSessionToken());
   }, []);
 
-  const handleSuggestionClick = async (mapbox: any): Promise<void> => {
+  const handleSuggestionClick = async (mapbox: LocationPoint): Promise<void> => {
     const locationDetail = await selectSuggestion(mapbox.mapbox_id);
     if (!locationDetail) return;
     console.log(locationDetail);
     map.flyTo({
       center: [locationDetail.coordinates.longitude, locationDetail.coordinates.latitude],
-      zoom: 10
+      zoom: 14
     });
     setShowInput(false);
     setSelectedSuggestion(mapbox.name);
-    setTimeout(() => {
-      const bounds = map.getBounds();
-      setBounds(bounds!.toArray().flat() as any);
-    }, 1000);
+    // setTimeout(() => {
+    //   const bounds = map.getBounds();
+    //   setBounds(bounds!.toArray().flat() as unknown as [number, number, number, number]);
+    // }, 1000);
   };
 
   const clearSelectedSuggestion = (): void => {
@@ -72,7 +72,7 @@ const SearchBar = ({ map }: MyButtonProps): ReactElement => {
     <>
       <div className="map-toolbar search-toolbar" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
         <button className="map-toolbar-button" onClick={() => { setShowInput(true); clearSelectedSuggestion() }}>
-          <MagnifyingGlass size={20} weight="bold" />
+          <MagnifyingGlass size={22} weight="bold" />
         </button>
         <input
           type="text"
@@ -86,8 +86,13 @@ const SearchBar = ({ map }: MyButtonProps): ReactElement => {
         {suggestions.length > 0 && showInput && (
           <ul className="suggestions-list">
             {suggestions.map((suggestion, index) => (
-              <li key={index} onClick={() => handleSuggestionClick(suggestion)}>
+              <li className='ville-suggestion-item' key={index} onClick={() => handleSuggestionClick(suggestion)}>
                 {suggestion.name}
+                <span className='place-formatted'>
+                  {suggestion.place_formatted}
+
+                </span>
+
               </li>
             ))}
           </ul>

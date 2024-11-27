@@ -15,7 +15,7 @@ export const TrashList = ({ trashList, modeCampaig }: { trashList: Trash[], mode
       case "Trash":
         return "Déchet";
       default:
-        return "Déchet";
+        return type;
     }
   };
 

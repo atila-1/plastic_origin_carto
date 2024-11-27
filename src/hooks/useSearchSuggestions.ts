@@ -1,19 +1,19 @@
 import { useState } from 'react';
 import { LocationPoint } from '../types';
-type Suggestion = {
-  name: string;
-  mapbox_id: string;
-};
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
+const MAPBOX_SEARCH_API = import.meta.env.VITE_MAPBOX_API_URL;
+
+
 type UseSearchSuggestionsReturn = {
   inputValue: string;
-  suggestions: Suggestion[];
+  suggestions: LocationPoint[];
   handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   selectSuggestion: (mapboxId: string) => Promise<LocationPoint | null>;
 };
 
 const useSearchSuggestions = (sessionToken: string): UseSearchSuggestionsReturn => {
   const [inputValue, setInputValue] = useState('');
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [suggestions, setSuggestions] = useState<LocationPoint[]>([]);
 
   const handleChange = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
     const value = event.target.value;
@@ -22,7 +22,7 @@ const useSearchSuggestions = (sessionToken: string): UseSearchSuggestionsReturn 
     if (value) {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_MAPBOX_API_URL}suggest?q=${value}&access_token=${import.meta.env.VITE_MAPBOX_ACCESS_TOKEN}&session_token=${sessionToken}`
+          `${MAPBOX_SEARCH_API}/suggest?q=${value}&types=place,country,locality&access_token=${MAPBOX_TOKEN}&session_token=${sessionToken}`
         );
         const data = await response.json();
         setSuggestions(data.suggestions || []);
@@ -37,7 +37,7 @@ const useSearchSuggestions = (sessionToken: string): UseSearchSuggestionsReturn 
   const selectSuggestion = async (mapboxId: string): Promise<LocationPoint | null> => {
     try {
       const response = await fetch(
-        `https://api.mapbox.com/search/searchbox/v1/retrieve/${mapboxId}?access_token=${import.meta.env.VITE_MAPBOX_ACCESS_TOKEN}&session_token=${sessionToken}`
+        `${MAPBOX_SEARCH_API}/retrieve/${mapboxId}?access_token=${MAPBOX_TOKEN}&session_token=${sessionToken}`
       );
       const data = await response.json();
 

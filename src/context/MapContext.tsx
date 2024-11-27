@@ -24,7 +24,7 @@ interface MapContextProps {
 
 const MapContext = createContext<MapContextProps | undefined>(undefined);
 export const MapProvider = ({ children }: { children: ReactNode }): ReactElement => {
-  const [bounds, setBounds] = useState<[number, number, number, number] | null>([-1.5, 40.0, 1.2, 50.0]);
+  const [bounds, setBounds] = useState<[number, number, number, number] | null>([-8.0, 33.0, 28, 66.0]);
   const [locationPoint, setLocationPoint] = useState<LocationPoint | null>(null);
   const [trashList, setTrashList] = useState<Trash[] | null>(null);
   const [mapBox, setMapBox] = useState<Map | null>(null);

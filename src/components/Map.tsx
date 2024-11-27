@@ -4,27 +4,29 @@ import { ReactElement, useEffect, useRef, useState } from 'react';
 import { useMapContext } from '../context/MapContext';
 import { Trash } from '../types';
 import DateBar from './DateBar';
+import { Legend } from './Legend';
 import { ListPanel } from './ListPanel';
 import { ModalCampaign } from './ModalCampaign';
 import SearchBar from './SearchBar';
 import TrashLayer from './TrashLayer';
 
 const MapApp = (): ReactElement => {
-  const { setTrashList, setMapBox, selectedTrash, currentCampagne } = useMapContext();
-  const [zoom, setZoom] = useState(5);
+  const { setTrashList, setMapBox, selectedTrash, currentCampagne, setCurrentCampagne, setBounds } = useMapContext();
+  const [zoom, setZoom] = useState(4.5);
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map>();
   const [isMapLoaded, setIsMapLoaded] = useState(false);
+
 
   useEffect(() => {
     mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current!,
       style: 'mapbox://styles/anaishy/clxygwhkz001d01pn1kan0dhw',
-      center: [2.1, 46.1],
+      center: [2.9, 46.1],
       zoom: zoom,
-      minZoom: 5,
-      maxZoom: 16
+      minZoom: 4,
+      maxZoom: 18
     });
 
     mapRef.current.addControl(new mapboxgl.FullscreenControl());
@@ -40,10 +42,20 @@ const MapApp = (): ReactElement => {
       if (!map) return;
       if (!map.getSource('data')) return;
       setZoom(map.getZoom());
+      if (zoom >= 12) {
+        setTrashList([]);
+        return
+      }
+
       const features = map.queryRenderedFeatures({
         layers: ['circle_trash']
       });
-      setTrashList(features.map((feature) => feature.properties as Trash));
+      const trashs = features.map((feature) => feature.properties as Trash);
+      // order by date
+      trashs.sort((a, b) => {
+        return new Date(a.time).getTime() - new Date(b.time).getTime();
+      });
+      setTrashList(trashs);
     };
 
     mapRef.current.on('moveend', updateVisibleFeatures);
@@ -92,12 +104,16 @@ const MapApp = (): ReactElement => {
 
   return (
     <div className="relative">
-      {isMapLoaded && <SearchBar map={mapRef.current!} />}
-      <DateBar />
-      <div id="map-container" ref={mapContainerRef} className="map-container" />
-      {isMapLoaded && <TrashLayer map={mapRef.current!} />}
-      {zoom >= 12 && <ListPanel />}
-      {currentCampagne && <ModalCampaign campaign={currentCampagne} />}
+      <div id="map-container" ref={mapContainerRef} className="map-container">
+
+        {isMapLoaded && <SearchBar map={mapRef.current!} />}
+        {isMapLoaded && <DateBar />}
+        {isMapLoaded && <TrashLayer map={mapRef.current!} />}
+        {zoom >= 12 && <ListPanel />}
+        {zoom >= 12 && <Legend />}
+        {currentCampagne && <ModalCampaign campaign={currentCampagne} />}
+
+      </div>
     </div>
   );
 };
