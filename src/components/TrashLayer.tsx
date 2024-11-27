@@ -7,7 +7,7 @@ import heatmapConfig from '../assets/TrashHeatmapStyle';
 import { useMapContext } from '../context/MapContext';
 import useFetchData from '../hooks/useFetchData';
 import { Trash } from '../types';
-import { getItem, setItem } from "../types/services/indexedDB";
+import { getItem, setItem } from "../utils/indexedDB";
 
 interface TrashLayerProps {
   map: Map;

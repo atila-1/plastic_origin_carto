@@ -1,16 +1,17 @@
+import { useMapContext } from '@context/MapContext';
+import useSearchSuggestions from '@hooks/useSearchSuggestions';
 import { MagnifyingGlass, XCircle } from '@phosphor-icons/react';
+import { LocationPoint } from '@types';
 import { Map } from 'mapbox-gl';
 import { ReactElement, useEffect, useState } from 'react';
-import { useMapContext } from '../context/MapContext';
-import useSearchSuggestions from '../hooks/useSearchSuggestions';
-import { LocationPoint } from '../types';
+
 
 interface MyButtonProps {
   map: Map;
 }
 
-const SearchBar = ({ map }: MyButtonProps): ReactElement => {
-  const { setBounds } = useMapContext();
+const SearchBar = (): ReactElement => {
+  const { setBounds, mapBox } = useMapContext();
   const [showInput, setShowInput] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [selectedSuggestion, setSelectedSuggestion] = useState<string>(null!);
@@ -48,20 +49,16 @@ const SearchBar = ({ map }: MyButtonProps): ReactElement => {
     setSessionToken(generateSessionToken());
   }, []);
 
-  const handleSuggestionClick = async (mapbox: LocationPoint): Promise<void> => {
-    const locationDetail = await selectSuggestion(mapbox.mapbox_id);
+  const handleSuggestionClick = async (mapbox$: LocationPoint): Promise<void> => {
+    const locationDetail = await selectSuggestion(mapbox$.mapbox_id);
     if (!locationDetail) return;
     console.log(locationDetail);
-    map.flyTo({
+    mapBox!.flyTo({
       center: [locationDetail.coordinates.longitude, locationDetail.coordinates.latitude],
       zoom: 14
     });
     setShowInput(false);
-    setSelectedSuggestion(mapbox.name);
-    // setTimeout(() => {
-    //   const bounds = map.getBounds();
-    //   setBounds(bounds!.toArray().flat() as unknown as [number, number, number, number]);
-    // }, 1000);
+    setSelectedSuggestion(mapbox$.name);
   };
 
   const clearSelectedSuggestion = (): void => {
@@ -70,8 +67,8 @@ const SearchBar = ({ map }: MyButtonProps): ReactElement => {
 
   return (
     <>
-      <div className="map-toolbar search-toolbar" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-        <button className="map-toolbar-button" onClick={() => { setShowInput(true); clearSelectedSuggestion() }}>
+      <div className="search-toolbar" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        <button className="map-toolbar-button" onClick={() => { setShowInput(!showInput); }}>
           <MagnifyingGlass size={22} weight="bold" />
         </button>
         <input
@@ -90,9 +87,7 @@ const SearchBar = ({ map }: MyButtonProps): ReactElement => {
                 {suggestion.name}
                 <span className='place-formatted'>
                   {suggestion.place_formatted}
-
                 </span>
-
               </li>
             ))}
           </ul>

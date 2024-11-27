@@ -1,13 +1,14 @@
+
+import { useMapContext } from '@context/MapContext';
+import { Trash } from '@types';
 import mapboxgl, { Map } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { ReactElement, useEffect, useRef, useState } from 'react';
-import { useMapContext } from '../context/MapContext';
-import { Trash } from '../types';
-import DateBar from './DateBar';
-import { Legend } from './Legend';
-import { ListPanel } from './ListPanel';
-import { ModalCampaign } from './ModalCampaign';
-import SearchBar from './SearchBar';
+
+import { Legend } from './panel/Legend';
+import { ListPanel } from './panel/ListPanel';
+import { ModalCampaign } from './panel/ModalCampaign';
+import MapToolbar from './toolbar/MapToolbar';
 import TrashLayer from './TrashLayer';
 
 const MapApp = (): ReactElement => {
@@ -105,9 +106,7 @@ const MapApp = (): ReactElement => {
   return (
     <div className="relative">
       <div id="map-container" ref={mapContainerRef} className="map-container">
-
-        {isMapLoaded && <SearchBar map={mapRef.current!} />}
-        {isMapLoaded && <DateBar />}
+        {isMapLoaded && <MapToolbar />}
         {isMapLoaded && <TrashLayer map={mapRef.current!} />}
         {zoom >= 12 && <ListPanel />}
         {zoom >= 12 && <Legend />}

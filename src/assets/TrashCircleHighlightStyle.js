@@ -14,7 +14,7 @@ const circleHighlightConfig = {
     'Trash', '#3357FF',
     'AccumulationZone', '#c11812',
     'BulkyTrash', '#33FF57',
-    '#CCCCCC'
+    '#bec4ff'
   ]
 }
 

@@ -1,8 +1,8 @@
+import { useMapContext } from "@context/MapContext";
 import { X } from "@phosphor-icons/react";
+import { Trash } from "@types";
 import { ReactElement, useEffect, useState } from "react";
 import { Tooltip } from 'react-tooltip';
-import { useMapContext } from "../context/MapContext";
-import { Trash } from "../types";
 import { TrashList } from "./TrashList";
 export const ListPanel = (): ReactElement => {
   const { trashList, selectedTrash, getTrashByCampagne, setSelectedTrash } = useMapContext();

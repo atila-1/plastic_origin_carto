@@ -1,9 +1,9 @@
+import { useMapContext } from "@context/MapContext";
 import { X } from "@phosphor-icons/react";
+import { Campaign } from "@types";
 import { format } from "date-fns";
 import { fr } from 'date-fns/locale';
 import React, { ReactElement } from "react";
-import { useMapContext } from '../context/MapContext';
-import { Campaign } from "../types";
 
 export const ModalCampaign = ({ campaign }: { campaign: Campaign }): ReactElement => {
   const { getTrashByCampagne, setCurrentCampagne } = useMapContext()

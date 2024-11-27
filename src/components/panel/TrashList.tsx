@@ -1,7 +1,8 @@
+import { useMapContext } from "@context/MapContext";
+import { Trash } from "@types";
 import { ReactElement } from "react";
-import { useMapContext } from "../context/MapContext";
-import { Trash } from "../types";
 import { CampagneDetails } from "./CampagneDetails";
+
 
 
 export const TrashList = ({ trashList, modeCampaig }: { trashList: Trash[], modeCampaig?: boolean }): ReactElement => {

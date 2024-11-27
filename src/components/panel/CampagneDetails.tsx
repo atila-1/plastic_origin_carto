@@ -1,8 +1,8 @@
 import { ArrowsHorizontal, MapPin } from "@phosphor-icons/react";
 import { ReactElement } from "react";
-import { useMapContext } from "../context/MapContext";
-import useFetchData from "../hooks/useFetchData";
-import { Campaign } from "../types";
+import { useMapContext } from "../../context/MapContext";
+import useFetchData from "../../hooks/useFetchData";
+import { Campaign } from "../../types";
 
 
 
@@ -26,8 +26,9 @@ export const CampagneDetails = ({ idCampaign }: { idCampaign: string }): ReactEl
           <ArrowsHorizontal size={18} weight="fill" />
           Rive {data.riverside === "right" ? "droite" : "gauche"}
         </span>
-        <span>
+        <span className="flex align-items-center gap-2 text-sm">
           <MapPin size={18} weight="fill" />
+          {data.locomotion}
         </span>
       </div>
     </>
