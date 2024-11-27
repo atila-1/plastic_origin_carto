@@ -18,7 +18,7 @@ const TrashLayer = ({ map }: TrashLayerProps): null => {
   const [initialData, setInitialData] = useState<FeatureCollection | null>(null);
   useEffect(() => {
     const fetchInitialData = async (): Promise<void> => {
-      const data = await getItem('trashData');
+      const data = await getItem<GeoJSON.FeatureCollection<GeoJSON.Geometry, Trash>>('trashData');
       setInitialData(data);
     };
     fetchInitialData();
@@ -83,18 +83,6 @@ const TrashLayer = ({ map }: TrashLayerProps): null => {
         layout: { visibility: 'visible' },
         paint: circleConfig as unknown as mapboxgl.HeatmapPaint
       });
-    }
-
-    // Adding a layer that makes non selected points greyish
-    if (!map.getLayer('circle_trash_background')) {
-      // map.addLayer({
-      //   id: 'circle_trash_background',
-      //   type: 'circle',
-      //   source: 'data',
-      //   minzoom: 12,
-      //   paint: circleBackgroundConfig as unknown as mapboxgl.HeatmapPaint,
-      //   layout: { visibility: 'none' }
-      // });
     }
 
     if (!map.getLayer('circle_trash_highlight')) {
