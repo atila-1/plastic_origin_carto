@@ -11,6 +11,7 @@ import { ModalCampaign } from './panel/ModalCampaign';
 import MapToolbar from './toolbar/MapToolbar';
 import TrashLayer from './TrashLayer';
 
+
 const MapApp = (): ReactElement => {
   const { setTrashList, setMapBox, selectedTrash, currentCampagne, setCurrentCampagne, setBounds } = useMapContext();
   const [zoom, setZoom] = useState(4.5);
@@ -43,7 +44,10 @@ const MapApp = (): ReactElement => {
       if (!map) return;
       if (!map.getSource('data')) return;
       setZoom(map.getZoom());
-      if (zoom >= 12) {
+      if (map.getZoom() <= 11.5) {
+        map._markers.forEach((marker) => {
+          marker.remove();
+        });
         setTrashList([]);
         return
       }
@@ -52,7 +56,6 @@ const MapApp = (): ReactElement => {
         layers: ['circle_trash']
       });
       const trashs = features.map((feature) => feature.properties as Trash);
-      // order by date
       trashs.sort((a, b) => {
         return new Date(a.time).getTime() - new Date(b.time).getTime();
       });
@@ -111,7 +114,6 @@ const MapApp = (): ReactElement => {
         {zoom >= 12 && <ListPanel />}
         {zoom >= 12 && <Legend />}
         {currentCampagne && <ModalCampaign campaign={currentCampagne} />}
-
       </div>
     </div>
   );

@@ -10,7 +10,6 @@ export const CampagneDetails = ({ idCampaign }: { idCampaign: string }): ReactEl
   const { setCurrentCampagne, getTrashByCampagne } = useMapContext()
   const { data, loading } = useFetchData<Campaign>(`${import.meta.env.VITE_PLASTIC_API}/campaign/${idCampaign}`);
   if (loading) return <div className="flex justify-content-between mb-3 align-items-center" >Chargement...</div>
-  console.log(data)
   return (
     <>
       <div className="flex justify-content-between mb-3 align-items-center">

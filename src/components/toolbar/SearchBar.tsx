@@ -52,7 +52,6 @@ const SearchBar = (): ReactElement => {
   const handleSuggestionClick = async (mapbox$: LocationPoint): Promise<void> => {
     const locationDetail = await selectSuggestion(mapbox$.mapbox_id);
     if (!locationDetail) return;
-    console.log(locationDetail);
     mapBox!.flyTo({
       center: [locationDetail.coordinates.longitude, locationDetail.coordinates.latitude],
       zoom: 14

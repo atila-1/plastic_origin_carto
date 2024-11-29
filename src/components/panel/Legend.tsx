@@ -1,9 +1,6 @@
 import { ReactElement } from "react"
 
-
 export const Legend = (): ReactElement => {
-
-
   return (
     <div className="flex bg-white gap-2 legends-content">
       <li className="legend-item">

@@ -1,5 +1,6 @@
 import { useMapContext } from "@context/MapContext";
 import { Trash } from "@types";
+import { Marker } from "mapbox-gl";
 import { ReactElement } from "react";
 import { CampagneDetails } from "./CampagneDetails";
 
@@ -19,7 +20,7 @@ export const TrashList = ({ trashList, modeCampaig }: { trashList: Trash[], mode
         return type;
     }
   };
-
+  let marker: Marker | null = null;
   const onTrashItemClick = (trash: Trash): void => {
     // search for the trash in the map
     if (!mapBox) return;
@@ -31,8 +32,23 @@ export const TrashList = ({ trashList, modeCampaig }: { trashList: Trash[], mode
     }
     mapBox.flyTo({
       center: (trashFeature.geometry as any).coordinates!,
-      zoom: 14
+      zoom: 18
     });
+
+    const coordinates = (trashFeature.geometry as any).coordinates.slice();
+    mapBox._markers.forEach((marker) => {
+      marker.remove();
+    });
+
+    if (marker) {
+      marker.setLngLat(coordinates);
+    } else {
+      marker = new Marker()
+        .setLngLat(coordinates)
+        .addTo(mapBox);
+    }
+
+
   }
 
   return (

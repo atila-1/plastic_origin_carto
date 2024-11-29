@@ -1,5 +1,5 @@
 import { FeatureCollection } from "geojson";
-import { Map, MapMouseEvent } from 'mapbox-gl';
+import { Map, MapMouseEvent, Marker } from 'mapbox-gl';
 import { useEffect, useState } from 'react';
 import circleHighlightConfig from '../assets/TrashCircleHighlightStyle';
 import circleConfig from '../assets/TrashCircleStyle';
@@ -96,10 +96,20 @@ const TrashLayer = ({ map }: TrashLayerProps): null => {
       });
     }
 
+    let marker: Marker | null = null;
     const handlePointClick = (e: MapMouseEvent): void => {
       if (!e.features || e.features.length === 0) return;
       const feature = e.features[0];
       setSelectedTrash(feature.properties as unknown as Trash);
+
+      map._markers.forEach((marker) => {
+        marker.remove();
+      });
+      const coordinates = (feature.geometry as any).coordinates.slice();
+      marker = new Marker()
+        .setLngLat(coordinates)
+        .addTo(map);
+
     };
 
     const handleClickHeatmap = (e: MapMouseEvent): void => {
@@ -119,9 +129,11 @@ const TrashLayer = ({ map }: TrashLayerProps): null => {
 
     }
     map.on('click', 'circle_trash', handlePointClick);
+    map.on('click', 'circle_trash_highlight', handlePointClick);
     map.on('click', 'heatmap_trash', handleClickHeatmap);
     return (): void => {
       map.off('click', 'circle_trash', handlePointClick);
+      map.off('click', 'circle_trash_highlight', handlePointClick);
       map.off('click', 'heatmap_trash', handleClickHeatmap);
     };
   }, [data, initialData]);
