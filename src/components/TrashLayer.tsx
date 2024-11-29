@@ -33,9 +33,7 @@ const TrashLayer = ({ map }: TrashLayerProps): null => {
       console.warn(new Date().toISOString(), ' ==> no data or map');
       return;
     }
-
     setItem('trashData', mapData);
-    console.log(new Date().toISOString(), " ==> Data map loaded successfully");
     const setType = (type: string): string => {
       if (type === "Sheet / tarp / plastic bag / fragment") {
         return "Trash"

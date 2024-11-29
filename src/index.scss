@@ -145,7 +145,7 @@ body {
 
   .date-picker {
     position: absolute;
-    left: 3rem;
+    left: calc(#{$left-margin} + 3rem);
   }
 
   .map-slider {

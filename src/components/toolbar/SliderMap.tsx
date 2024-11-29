@@ -27,7 +27,6 @@ export const SliderMap = (): ReactElement => {
       setEndDate(end);
       setCurrentDate(start);
     };
-
     fetchData();
   }, []);
 
@@ -83,7 +82,7 @@ export const SliderMap = (): ReactElement => {
       source.setData(filteredData);
     };
     loadData();
-  }, [currentDate, mapBox]);
+  }, [mapBox]);
 
   const handleIconClick = (): void => {
     setIsSliderVisible(!isSliderVisible);

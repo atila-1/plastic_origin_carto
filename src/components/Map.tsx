@@ -18,6 +18,7 @@ const MapApp = (): ReactElement => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map>();
   const [isMapLoaded, setIsMapLoaded] = useState(false);
+  const [isSourceLoaded, setIsSourceLoaded] = useState(false);
 
 
   useEffect(() => {
@@ -37,6 +38,12 @@ const MapApp = (): ReactElement => {
       setIsMapLoaded(true);
       mapRef.current!.resize();
       setMapBox(mapRef.current!);
+    });
+
+    mapRef.current.on('sourcedata', (e) => {
+      if (e.isSourceLoaded && e.sourceId === 'data' && !isSourceLoaded) {
+        setIsSourceLoaded(true);
+      }
     });
 
     const updateVisibleFeatures = (): void => {
@@ -109,7 +116,7 @@ const MapApp = (): ReactElement => {
   return (
     <div className="relative">
       <div id="map-container" ref={mapContainerRef} className="map-container">
-        {isMapLoaded && <MapToolbar />}
+        {isSourceLoaded && <MapToolbar />}
         {isMapLoaded && <TrashLayer map={mapRef.current!} />}
         {zoom >= 12 && <ListPanel />}
         {zoom >= 12 && <Legend />}
