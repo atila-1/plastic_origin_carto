@@ -117,6 +117,12 @@ const MapApp = (): ReactElement => {
     <div className="relative">
       <div id="map-container" ref={mapContainerRef} className="map-container">
         {isSourceLoaded && <MapToolbar />}
+        {!isSourceLoaded && (
+          <div className="loader-container">
+            <div className="loader"></div>
+            <p className='loader-p'>Chargement des données en cours...</p>
+          </div>
+        )}
         {isMapLoaded && <TrashLayer map={mapRef.current!} />}
         {zoom >= 12 && <ListPanel />}
         {zoom >= 12 && <Legend />}
