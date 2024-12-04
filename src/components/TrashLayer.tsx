@@ -1,5 +1,5 @@
 import { FeatureCollection } from "geojson";
-import { Map, MapMouseEvent, Marker } from 'mapbox-gl';
+import { MapMouseEvent, Marker } from 'mapbox-gl';
 import { useEffect, useState } from 'react';
 import circleHighlightConfig from '../assets/TrashCircleHighlightStyle';
 import circleConfig from '../assets/TrashCircleStyle';
@@ -9,27 +9,32 @@ import useFetchData from '../hooks/useFetchData';
 import { Trash } from '../types';
 import { getItem, setItem } from "../utils/indexedDB";
 
-interface TrashLayerProps {
-  map: Map;
-}
-const TrashLayer = ({ map }: TrashLayerProps): null => {
-  const { bounds, setSelectedTrash, setTrashListApi } = useMapContext();
+
+const TrashLayer = (): null => {
+  const { bounds, setSelectedTrash, setTrashListApi, mapBox, setIsAppReady } = useMapContext();
   const url = `${import.meta.env.VITE_PLASTIC_API}/geojson/${bounds!.map(($) => $.toFixed(2)).join('/')}?entity_type=trash`;
   const [initialData, setInitialData] = useState<FeatureCollection | null>(null);
+  const { data, loading } = useFetchData<FeatureCollection>(url);
+
   useEffect(() => {
     const fetchInitialData = async (): Promise<void> => {
-      const data = await getItem<GeoJSON.FeatureCollection<GeoJSON.Geometry, Trash>>('trashData');
-      setInitialData(data);
+      const $data = await getItem<GeoJSON.FeatureCollection<GeoJSON.Geometry, Trash>>('trashData');
+      setInitialData($data);
     };
     fetchInitialData();
   }, []);
-  const { data, loading } = useFetchData<FeatureCollection>(url);
+
   useEffect(() => {
+    if (!mapBox || mapBox.loaded() === false) {
+      console.warn(new Date().toISOString(), ' ==> no map');
+      return;
+    }
     let mapData = initialData;
     if (!loading && data) {
       mapData = data;
+      setIsAppReady(true);
     }
-    if (!mapData || !map) {
+    if (!mapData || !mapBox) {
       console.warn(new Date().toISOString(), ' ==> no data or map');
       return;
     }
@@ -49,21 +54,21 @@ const TrashLayer = ({ map }: TrashLayerProps): null => {
       feature.properties!.type_name = setType(feature.properties!.type_name)
     });
     setTrashListApi(mapData.features.map((feature) => feature.properties as Trash));
-    if (!map.getSource('data')) {
-      map.addSource('data', {
+    if (!mapBox.getSource('data')) {
+      mapBox.addSource('data', {
         type: 'geojson',
         data: mapData
       });
     } else {
       console.log(new Date().toISOString(), " ==> Data map loaded successfully");
-      const source: mapboxgl.GeoJSONSource = map.getSource('data') as mapboxgl.GeoJSONSource;
+      const source: mapboxgl.GeoJSONSource = mapBox.getSource('data') as mapboxgl.GeoJSONSource;
       if (source) {
         source.setData(mapData);
       }
     }
 
-    if (!map.getLayer('heatmap_trash')) {
-      map.addLayer({
+    if (!mapBox.getLayer('heatmap_trash')) {
+      mapBox.addLayer({
         id: 'heatmap_trash',
         type: 'heatmap',
         source: 'data',
@@ -72,8 +77,8 @@ const TrashLayer = ({ map }: TrashLayerProps): null => {
       });
     }
 
-    if (!map.getLayer('circle_trash')) {
-      map.addLayer({
+    if (!mapBox.getLayer('circle_trash')) {
+      mapBox.addLayer({
         id: 'circle_trash',
         type: 'circle',
         source: 'data',
@@ -83,8 +88,8 @@ const TrashLayer = ({ map }: TrashLayerProps): null => {
       });
     }
 
-    if (!map.getLayer('circle_trash_highlight')) {
-      map.addLayer({
+    if (!mapBox.getLayer('circle_trash_highlight')) {
+      mapBox.addLayer({
         id: 'circle_trash_highlight',
         type: 'circle',
         source: 'data',
@@ -100,18 +105,18 @@ const TrashLayer = ({ map }: TrashLayerProps): null => {
       const feature = e.features[0];
       setSelectedTrash(feature.properties as unknown as Trash);
 
-      map._markers.forEach((marker) => {
+      mapBox._markers.forEach((marker) => {
         marker.remove();
       });
       const coordinates = (feature.geometry as any).coordinates.slice();
       marker = new Marker()
         .setLngLat(coordinates)
-        .addTo(map);
+        .addTo(mapBox);
 
     };
 
     const handleClickHeatmap = (e: MapMouseEvent): void => {
-      const zoom = map.getZoom();
+      const zoom = mapBox.getZoom();
       let finalZoom = 0;
       if (zoom <= 5) {
         finalZoom = 10;
@@ -120,21 +125,21 @@ const TrashLayer = ({ map }: TrashLayerProps): null => {
       } else {
         finalZoom = 15;
       }
-      map.flyTo({
+      mapBox.flyTo({
         center: e.lngLat,
         zoom: finalZoom
       });
 
     }
-    map.on('click', 'circle_trash', handlePointClick);
-    map.on('click', 'circle_trash_highlight', handlePointClick);
-    map.on('click', 'heatmap_trash', handleClickHeatmap);
+    mapBox.on('click', 'circle_trash', handlePointClick);
+    mapBox.on('click', 'circle_trash_highlight', handlePointClick);
+    mapBox.on('click', 'heatmap_trash', handleClickHeatmap);
     return (): void => {
-      map.off('click', 'circle_trash', handlePointClick);
-      map.off('click', 'circle_trash_highlight', handlePointClick);
-      map.off('click', 'heatmap_trash', handleClickHeatmap);
+      mapBox.off('click', 'circle_trash', handlePointClick);
+      mapBox.off('click', 'circle_trash_highlight', handlePointClick);
+      mapBox.off('click', 'heatmap_trash', handleClickHeatmap);
     };
-  }, [data, initialData]);
+  }, [data, initialData, mapBox]);
   return null;
 };
 

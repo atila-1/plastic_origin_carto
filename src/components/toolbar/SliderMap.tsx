@@ -1,22 +1,20 @@
 import { useMapContext } from '@context/MapContext';
+import { useSlider } from '@hooks/useSlider';
 import { FadersHorizontal } from '@phosphor-icons/react';
 import { Trash } from '@types';
 import { getItem } from '@utils/indexedDB';
-import { ReactElement, useEffect, useRef, useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 import { Tooltip } from 'react-tooltip';
 
 export const SliderMap = (): ReactElement => {
   const { mapBox } = useMapContext();
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
-  const [currentDate, setCurrentDate] = useState<Date | null>(null);
-  const [progress, setProgress] = useState<number>(0);
+  const { currentDate, progress, isPlaying, startProgress, resetProgress, pauseProgress } = useSlider(startDate, endDate);
   const [isSliderVisible, setIsSliderVisible] = useState<boolean>(false);
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const intervalRef = useRef<any>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = async (): Promise<void> => {
       const originalData = await getItem<GeoJSON.FeatureCollection<GeoJSON.Geometry, Trash>>('trashData');
       originalData.features.sort((a, b) => {
         return new Date(a.properties.time).getTime() - new Date(b.properties.time).getTime();
@@ -25,45 +23,9 @@ export const SliderMap = (): ReactElement => {
       const end = new Date(originalData.features[originalData.features.length - 1].properties.time);
       setStartDate(start);
       setEndDate(end);
-      setCurrentDate(start);
     };
     fetchData();
   }, []);
-
-  const startProgress = (): void => {
-    if (!startDate || !endDate || isPlaying) return;
-    setIsPlaying(true);
-    setProgress(0);
-    setCurrentDate(startDate);
-    const totalDuration = endDate.getTime() - startDate.getTime();
-    const stepDuration = totalDuration / 100;
-    setTimeout(() => {
-      intervalRef.current = setInterval(() => {
-        setCurrentDate((prevDate) => {
-          if (!prevDate) return null;
-          const newDate = new Date(prevDate.getTime() + stepDuration);
-          if (newDate >= endDate) {
-            clearInterval(intervalRef.current!);
-            setIsPlaying(false);
-            return endDate;
-          }
-          return newDate;
-        });
-
-        setProgress((prevProgress) => {
-          const newProgress = prevProgress + 1;
-          if (newProgress >= 100) {
-            clearInterval(intervalRef.current!);
-            setIsPlaying(false);
-            return 100;
-          }
-          return newProgress;
-        });
-      }, 150);
-
-    }, 300);
-
-  };
 
   useEffect(() => {
     if (!currentDate || !mapBox) return;
@@ -79,19 +41,27 @@ export const SliderMap = (): ReactElement => {
         type: 'FeatureCollection',
         features: filteredFeatures,
       };
+      if (filteredData.features.length <= 10) return;
       source.setData(filteredData);
     };
     loadData();
-  }, [mapBox]);
+  }, [mapBox, currentDate]);
 
   const handleIconClick = (): void => {
     setIsSliderVisible(!isSliderVisible);
     if (!isSliderVisible) {
       mapBox!.flyTo({
         center: [10.9, 46.1],
-        zoom: 4.5
+        zoom: 4.5,
       });
     }
+  };
+
+  const reset = async (): Promise<void> => {
+    resetProgress();
+    const originalData = await getItem<GeoJSON.FeatureCollection<GeoJSON.Geometry, Trash>>('trashData');
+    const source = mapBox!.getSource('data') as mapboxgl.GeoJSONSource;
+    source.setData(originalData);
   }
 
   return (
@@ -106,14 +76,14 @@ export const SliderMap = (): ReactElement => {
             <span>{startDate?.toLocaleDateString()}</span>
           </div>
           <div className="progress-bar-content">
-            <div className='progress-bar'>
+            <div className="progress-bar">
               <div className="progress" style={{ width: `${progress}%` }}></div>
             </div>
-            <div className='progress-actions'>
-              <button onClick={startProgress}>Commencer</button>
-              <span>
-                {currentDate?.toDateString()}
-              </span>
+            <div className="progress-actions">
+              {!isPlaying && <button onClick={startProgress}>Commencer</button>}
+              {isPlaying && <button onClick={pauseProgress}>Pause</button>}
+              {progress > 1 && <button onClick={reset}>Reset</button>}
+              <span>{currentDate?.toDateString()}</span>
             </div>
           </div>
           <div className="slider-date date-end">

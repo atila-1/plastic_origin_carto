@@ -13,13 +13,12 @@ import TrashLayer from './TrashLayer';
 
 
 const MapApp = (): ReactElement => {
-  const { setTrashList, setMapBox, selectedTrash, currentCampagne, setCurrentCampagne, setBounds } = useMapContext();
+  const { setTrashList, setMapBox, selectedTrash, currentCampagne, isAppReady } = useMapContext();
   const [zoom, setZoom] = useState(4.5);
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map>();
   const [isMapLoaded, setIsMapLoaded] = useState(false);
   const [isSourceLoaded, setIsSourceLoaded] = useState(false);
-
 
   useEffect(() => {
     mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
@@ -37,7 +36,9 @@ const MapApp = (): ReactElement => {
     mapRef.current.on('load', () => {
       setIsMapLoaded(true);
       mapRef.current!.resize();
-      setMapBox(mapRef.current!);
+      setTimeout(() => {
+        setMapBox(mapRef.current!);
+      }, 300);
     });
 
     mapRef.current.on('sourcedata', (e) => {
@@ -113,22 +114,41 @@ const MapApp = (): ReactElement => {
     };
   }, [selectedTrash]);
 
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const tooltip = document.querySelector('.tooltip') as HTMLElement;
+      if (tooltip) {
+        tooltip.style.left = `${e.pageX + 10}px`;
+        tooltip.style.top = `${e.pageY + 10}px`;
+      }
+    };
+    if (!isAppReady) {
+      document.body.classList.add('loading');
+      document.addEventListener('mousemove', handleMouseMove);
+    } else {
+      document.body.classList.remove('loading');
+      document.removeEventListener('mousemove', handleMouseMove);
+    }
+
+    return () => {
+      document.body.classList.remove('loading');
+      document.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [isAppReady]);
+
   return (
-    <div className="relative">
-      <div id="map-container" ref={mapContainerRef} className="map-container">
-        {isSourceLoaded && <MapToolbar />}
-        {!isSourceLoaded && (
-          <div className="loader-container">
-            <div className="loader"></div>
-            <p className='loader-p'>Chargement des données en cours...</p>
-          </div>
-        )}
-        {isMapLoaded && <TrashLayer map={mapRef.current!} />}
-        {zoom >= 12 && <ListPanel />}
-        {zoom >= 12 && <Legend />}
-        {currentCampagne && <ModalCampaign campaign={currentCampagne} />}
+    <>
+      {!isAppReady && <div className="tooltip"> Mise à jour des données en cours...</div>}
+      <div className="relative">
+        <div id="map-container" ref={mapContainerRef} className="map-container">
+          {isSourceLoaded && <MapToolbar />}
+          {isMapLoaded && <TrashLayer />}
+          {zoom >= 12 && <ListPanel />}
+          {zoom >= 12 && <Legend />}
+          {currentCampagne && <ModalCampaign campaign={currentCampagne} />}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

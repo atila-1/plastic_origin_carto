@@ -117,6 +117,7 @@ body {
     }
   }
 
+  .selected-date,
   .selected-suggestion {
     position: absolute;
     top: $top-margin;
@@ -146,6 +147,10 @@ body {
   .date-picker {
     position: absolute;
     left: calc(#{$left-margin} + 3rem);
+  }
+
+  .selected-date {
+    top: calc(#{$top-margin} + 3.5rem);
   }
 
   .map-slider {
@@ -481,4 +486,29 @@ first div with .mapboxgl-ctrl-group in .mapboxgl-ctrl-top-right
 .loader-container p {
   font-size: 14px;
   font-weight: 600;
+}
+
+body.loading {
+  .mapboxgl-canvas-container {
+    .mapboxgl-canvas {
+      cursor: wait !important;
+    }
+  }
+}
+
+
+.tooltip {
+  position: absolute;
+  background-color: #333;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 14px;
+  pointer-events: none;
+  z-index: 1000;
+  display: none;
+}
+
+body.loading .tooltip {
+  display: block;
 }
