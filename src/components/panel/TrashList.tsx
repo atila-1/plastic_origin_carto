@@ -17,7 +17,7 @@ export const TrashList = ({ trashList, modeCampaig }: { trashList: Trash[], mode
       case "Trash":
         return "Déchet";
       default:
-        return type;
+        return "Déchet";
     }
   };
   let marker: Marker | null = null;

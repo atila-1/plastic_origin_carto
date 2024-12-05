@@ -46,12 +46,16 @@ const TrashLayer = (): null => {
         return "AccumulationZone"
       } else if (type === "Bottle-shaped") {
         return "BulkyTrash"
+      } else if (type === "Trash" || type === "AccumulationZone" || type === "BulkyTrash") {
+        return type;
       }
-      return type
+      return "Trash"
     }
 
     mapData.features.forEach((feature) => {
-      feature.properties!.type_name = setType(feature.properties!.type_name)
+      const type = feature.properties!.type_name;
+      const neType = setType(type);
+      feature.properties!.type_name = neType;
     });
     setTrashListApi(mapData.features.map((feature) => feature.properties as Trash));
     if (!mapBox.getSource('data')) {
@@ -60,7 +64,6 @@ const TrashLayer = (): null => {
         data: mapData
       });
     } else {
-      console.log(new Date().toISOString(), " ==> Data map loaded successfully");
       const source: mapboxgl.GeoJSONSource = mapBox.getSource('data') as mapboxgl.GeoJSONSource;
       if (source) {
         source.setData(mapData);
