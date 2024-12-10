@@ -73,7 +73,7 @@ export const ModalCampaign = ({ campaign }: { campaign: Campaign }): ReactElemen
         </div>
         {renderLigne('Durée', `${hours}h ${minutes}m`)}
         {renderLigne('Id de la campagne', campaign.id)}
-        {campaign.distance && renderLigne('Superficie couverte', `${campaign.distance?.toFixed(2)} km`)}
+        {campaign.distance && renderLigne('Distance couverte', `${campaign.distance?.toFixed(2)} m`)}
       </div>
     </>
   )
